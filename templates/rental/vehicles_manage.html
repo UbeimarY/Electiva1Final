@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Vehículos - RentCar{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 sidebar p-3">
+            <h5 class="mb-4">Panel Admin</h5>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'dashboard' %}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'vehicles_manage' %}">
+                        <i class="bi bi-car-front"></i> Vehículos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'categories_manage' %}">
+                        <i class="bi bi-tags"></i> Categorías
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'rentals_manage' %}">
+                        <i class="bi bi-list-check"></i> Alquileres
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Gestión de Vehículos</h2>
+                <a href="{% url 'vehicle_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nuevo Vehículo
+                </a>
+            </div>
+
+            <!-- Search -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-10">
+                            <input type="text" name="search" class="form-control" placeholder="Buscar por marca, modelo o placa..." value="{{ request.GET.search }}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Vehicles Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Placa</th>
+                                    <th>Marca</th>
+                                    <th>Modelo</th>
+                                    <th>Año</th>
+                                    <th>Categoría</th>
+                                    <th>Tarifa Diaria</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vehicle in vehicles %}
+                                <tr>
+                                    <td>{{ vehicle.license_plate }}</td>
+                                    <td>{{ vehicle.brand }}</td>
+                                    <td>{{ vehicle.model }}</td>
+                                    <td>{{ vehicle.year }}</td>
+                                    <td><span class="badge bg-secondary">{{ vehicle.category }}</span></td>
+                                    <td>${{ vehicle.daily_rate }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if vehicle.status == 'disponible' %}success{% elif vehicle.status == 'alquilado' %}warning{% else %}secondary{% endif %}">
+                                            {{ vehicle.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'vehicle_edit' vehicle.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{% url 'vehicle_delete' vehicle.pk %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center">No hay vehículos registrados.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

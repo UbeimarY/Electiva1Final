@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contrato de Alquiler #{{ rental.id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h3 {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .info-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-label {
+            font-weight: bold;
+            width: 200px;
+        }
+        .footer {
+            margin-top: 50px;
+            border-top: 2px solid #333;
+            padding-top: 20px;
+        }
+        .signature {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .signature-box {
+            text-align: center;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 200px;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CONTRATO DE ALQUILER DE VEHÍCULO</h1>
+        <p>Contrato N° {{ rental.id }}</p>
+        <p>Fecha: {{ rental.created_at|date:"d/m/Y" }}</p>
+    </div>
+
+    <div class="section">
+        <h3>INFORMACIÓN DEL CLIENTE</h3>
+        <div class="info-row">
+            <span class="info-label">Nombre Completo:</span>
+            <span>{{ rental.client.get_full_name }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Email:</span>
+            <span>{{ rental.client.email }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Teléfono:</span>
+            <span>{{ rental.client.profile.phone|default:"N/A" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Dirección:</span>
+            <span>{{ rental.client.profile.address|default:"N/A" }}</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>INFORMACIÓN DEL VEHÍCULO</h3>
+        <div class="info-row">
+            <span class="info-label">Vehículo:</span>
+            <span>{{ rental.vehicle.brand }} {{ rental.vehicle.model }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Placa:</span>
+            <span>{{ rental.vehicle.license_plate }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Año:</span>
+            <span>{{ rental.vehicle.year }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Categoría:</span>
+            <span>{{ rental.vehicle.category }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Transmisión:</span>
+            <span>{{ rental.vehicle.get_transmission_display }}</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>TÉRMINOS DEL ALQUILER</h3>
+        <div class="info-row">
+            <span class="info-label">Fecha de Inicio:</span>
+            <span>{{ rental.start_date }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Fecha de Devolución:</span>
+            <span>{{ rental.end_date }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Número de Días:</span>
+            <span>{{ rental.days }} día(s)</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Tarifa Diaria:</span>
+            <span>${{ rental.daily_rate }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label"><strong>MONTO TOTAL:</strong></span>
+            <span><strong>${{ rental.total_amount }}</strong></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Estado:</span>
+            <span>{{ rental.get_status_display }}</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>CONDICIONES GENERALES</h3>
+        <ol>
+            <li>El cliente se compromete a devolver el vehículo en las mismas condiciones en que lo recibió.</li>
+            <li>El cliente es responsable de cualquier daño causado al vehículo durante el período de alquiler.</li>
+            <li>El vehículo debe ser devuelto con el mismo nivel de combustible con el que fue entregado.</li>
+            <li>Cualquier retraso en la devolución será sujeto a cargos adicionales.</li>
+            <li>El cliente debe notificar inmediatamente cualquier accidente o daño al vehículo.</li>
+            <li>El uso del vehículo para fines ilegales resultará en la terminación inmediata del contrato.</li>
+        </ol>
+    </div>
+
+    {% if rental.notes %}
+    <div class="section">
+        <h3>NOTAS ADICIONALES</h3>
+        <p>{{ rental.notes }}</p>
+    </div>
+    {% endif %}
+
+    <div class="signature">
+        <div class="signature-box">
+            <div class="signature-line"></div>
+            <p>Firma del Cliente</p>
+            <p>{{ rental.client.get_full_name }}</p>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line"></div>
+            <p>Firma del Representante</p>
+            <p>RentCar</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p style="text-align: center; color: #666; font-size: 12px;">
+            Este documento ha sido generado electrónicamente y es válido sin firma física.<br>
+            Para cualquier consulta, contacte a RentCar.
+        </p>
+    </div>
+</body>
+</html>

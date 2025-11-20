@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Alquileres - RentCar{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 sidebar p-3">
+            <h5 class="mb-4">Panel Admin</h5>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'dashboard' %}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vehicles_manage' %}">
+                        <i class="bi bi-car-front"></i> Vehículos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'categories_manage' %}">
+                        <i class="bi bi-tags"></i> Categorías
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'rentals_manage' %}">
+                        <i class="bi bi-list-check"></i> Alquileres
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Gestión de Alquileres</h2>
+                <div>
+                    <a href="{% url 'export_rentals_csv' %}" class="btn btn-success">
+                        <i class="bi bi-download"></i> Exportar CSV
+                    </a>
+                    <!-- Nuevo botón Excel -->
+                    <a href="{% url 'export_rentals_excel' %}" class="btn btn-outline-success ms-2">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Exportar Excel
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            {{ filter_form.search }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ filter_form.status }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.start_date }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.end_date }}
+                        </div>
+                        <div class="col-md-1">
+                            <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Rentals Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Vehículo</th>
+                                    <th>Fecha Inicio</th>
+                                    <th>Fecha Fin</th>
+                                    <th>Días</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rental in rentals %}
+                                <tr>
+                                    <td>#{{ rental.id }}</td>
+                                    <td>{{ rental.client.get_full_name }}</td>
+                                    <td>{{ rental.vehicle }}</td>
+                                    <td>{{ rental.start_date }}</td>
+                                    <td>{{ rental.end_date }}</td>
+                                    <td>{{ rental.days }}</td>
+                                    <td>${{ rental.total_amount }}</td>
+                                    <td>
+                                        <form method="post" action="{% url 'rental_update_status' rental.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                {% for value, label in rental.STATUS_CHOICES %}
+                                                    <option value="{{ value }}" {% if rental.status == value %}selected{% endif %}>
+                                                        {{ label }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'rental_contract_pdf' rental.pk %}" class="btn btn-sm btn-outline-info" target="_blank">
+                                            <i class="bi bi-file-pdf"></i> Contrato
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center">No hay alquileres registrados.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select { border: 1px solid #ced4da; padding: 0.5rem; }
+</style>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Vehículos Disponibles - RentCar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Vehículos Disponibles</h2>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Buscar..." value="{{ request.GET.search }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="category" class="form-select">
+                        <option value="">Todas las categorías</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="transmission" class="form-select">
+                        <option value="">Todas las transmisiones</option>
+                        <option value="manual" {% if request.GET.transmission == 'manual' %}selected{% endif %}>Manual</option>
+                        <option value="automatica" {% if request.GET.transmission == 'automatica' %}selected{% endif %}>Automática</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Vehicles Grid -->
+    <div class="row g-4">
+        {% for vehicle in vehicles %}
+        <div class="col-md-4">
+            <div class="card h-100 vehicle-card">
+                {% if vehicle.image %}
+                    <img src="{{ vehicle.image.url }}" class="card-img-top" alt="{{ vehicle }}">
+                {% else %}
+                    <img src="{% static 'img/vehicle_placeholder.svg' %}" class="card-img-top" alt="placeholder">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ vehicle.brand }} {{ vehicle.model }}</h5>
+                    <p class="mb-2">
+                        <span class="badge bg-secondary">{{ vehicle.category }}</span>
+                        <span class="badge bg-info">{{ vehicle.get_transmission_display }}</span>
+                    </p>
+                    <p class="mb-2"><i class="bi bi-people"></i> {{ vehicle.capacity }} pasajeros</p>
+                    <p class="mb-2"><small class="text-muted">{{ vehicle.description|truncatewords:15 }}</small></p>
+                    <p class="text-primary fw-bold fs-4">${{ vehicle.daily_rate }}/día</p>
+                    <a href="{% url 'rental_create' vehicle.id %}" class="btn btn-primary w-100">
+                        <i class="bi bi-calendar-check"></i> Reservar Ahora
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">No hay vehículos disponibles con los filtros seleccionados.</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

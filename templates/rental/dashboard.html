@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - RentCar{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 sidebar p-3">
+            <h5 class="mb-4">Panel Admin</h5>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'dashboard' %}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vehicles_manage' %}">
+                        <i class="bi bi-car-front"></i> Vehículos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'categories_manage' %}">
+                        <i class="bi bi-tags"></i> Categorías
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'rentals_manage' %}">
+                        <i class="bi bi-list-check"></i> Alquileres
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10 p-4">
+            <h2 class="mb-4">Dashboard</h2>
+
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <h6>Total Vehículos</h6>
+                            <h2>{{ total_vehicles }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card success">
+                        <div class="card-body">
+                            <h6>Disponibles</h6>
+                            <h2>{{ available_vehicles }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card warning">
+                        <div class="card-body">
+                            <h6>Alquileres Activos</h6>
+                            <h2>{{ active_rentals }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card info">
+                        <div class="card-body">
+                            <h6>Ingresos Totales</h6>
+                            <h2>${{ total_revenue|floatformat:2 }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Top 5 Vehículos Más Alquilados</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="topVehiclesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Distribución de Estados</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Ingresos Mensuales</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Rentals -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Alquileres Recientes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Vehículo</th>
+                                    <th>Fecha Inicio</th>
+                                    <th>Fecha Fin</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rental in recent_rentals %}
+                                <tr>
+                                    <td>#{{ rental.id }}</td>
+                                    <td>{{ rental.client.get_full_name }}</td>
+                                    <td>{{ rental.vehicle }}</td>
+                                    <td>{{ rental.start_date }}</td>
+                                    <td>{{ rental.end_date }}</td>
+                                    <td>${{ rental.total_amount }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if rental.status == 'activo' %}success{% elif rental.status == 'pendiente' %}warning{% elif rental.status == 'completado' %}info{% else %}secondary{% endif %}">
+                                            {{ rental.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Datos en JSON para evitar lógica de plantilla dentro de JS -->
+<script type="application/json" id="top-vehicles-labels">[{% for vehicle in top_vehicles %}"{{ vehicle.brand|escapejs }} {{ vehicle.model|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}]</script>
+<script type="application/json" id="top-vehicles-counts">[{% for vehicle in top_vehicles %}{{ vehicle.rental_count }}{% if not forloop.last %}, {% endif %}{% endfor %}]</script>
+
+<script type="application/json" id="status-labels">[{% for item in status_distribution %}"{{ item.status|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}]</script>
+<script type="application/json" id="status-counts">[{% for item in status_distribution %}{{ item.count }}{% if not forloop.last %}, {% endif %}{% endfor %}]</script>
+
+<script type="application/json" id="revenue-labels">[{% for item in monthly_revenue %}"{{ item.month|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}]</script>
+<script type="application/json" id="revenue-totals">[{% for item in monthly_revenue %}{{ item.total }}{% if not forloop.last %}, {% endif %}{% endfor %}]</script>
+
+<script>
+// Leer datos JSON generados por la plantilla
+const topVehicleLabels = JSON.parse(document.getElementById('top-vehicles-labels').textContent);
+const topVehicleCounts = JSON.parse(document.getElementById('top-vehicles-counts').textContent);
+
+const statusLabels = JSON.parse(document.getElementById('status-labels').textContent);
+const statusCounts = JSON.parse(document.getElementById('status-counts').textContent);
+
+const revenueLabels = JSON.parse(document.getElementById('revenue-labels').textContent);
+const revenueTotals = JSON.parse(document.getElementById('revenue-totals').textContent);
+
+// Top Vehicles Chart
+const topVehiclesCtx = document.getElementById('topVehiclesChart').getContext('2d');
+new Chart(topVehiclesCtx, {
+    type: 'bar',
+    data: {
+        labels: topVehicleLabels,
+        datasets: [{
+            label: 'Número de Alquileres',
+            data: topVehicleCounts,
+            backgroundColor: 'rgba(37, 99, 235, 0.85)',
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, grid: { color: '#eee' } }, x: { grid: { display: false } } }
+    }
+});
+
+// Status Distribution Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+new Chart(statusCtx, {
+    type: 'pie',
+    data: {
+        labels: statusLabels,
+        datasets: [{
+            data: statusCounts,
+            backgroundColor: ['#f59e0b', '#22c55e', '#06b6d4', '#6c757d']
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
+
+// Revenue Chart
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+new Chart(revenueCtx, {
+    type: 'line',
+    data: {
+        labels: revenueLabels,
+        datasets: [{
+            label: 'Ingresos ($)',
+            data: revenueTotals,
+            borderColor: 'rgba(37, 99, 235, 1)',
+            backgroundColor: 'rgba(37, 99, 235, 0.12)',
+            tension: 0.35,
+            fill: true,
+            pointRadius: 4,
+            pointHoverRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, grid: { color: '#eee' } }, x: { grid: { display: false } } }
+    }
+});
+</script>
+{% endblock %}

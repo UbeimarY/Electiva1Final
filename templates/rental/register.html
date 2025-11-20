@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrarse - RentCar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Registrarse</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.username.label }}</label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger">{{ form.username.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.email.label }}</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.first_name.label }}</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger">{{ form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.last_name.label }}</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger">{{ form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.password1.label }}</label>
+                                {{ form.password1 }}
+                                {% if form.password1.errors %}
+                                    <div class="text-danger">{{ form.password1.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.password2.label }}</label>
+                                {{ form.password2 }}
+                                {% if form.password2.errors %}
+                                    <div class="text-danger">{{ form.password2.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.phone.label }}</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.identification.label }}</label>
+                            {{ form.identification }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.address.label }}</label>
+                            {{ form.address }}
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mb-3">Registrarse</button>
+                        <p class="text-center mb-0">
+                            ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control { border: 1px solid #ced4da; padding: 0.5rem; }
+</style>
+{% endblock %}

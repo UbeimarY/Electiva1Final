@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar Sesión - RentCar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Iniciar Sesión</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nombre de usuario</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mb-3">Iniciar Sesión</button>
+                        <p class="text-center mb-0">
+                            ¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a>
+                        </p>
+                    </form>
+                    
+                    <hr class="my-4">
+                    <div class="alert alert-info">
+                        <strong>Credenciales de prueba:</strong><br>
+                        Admin: <code>admin / admin123</code><br>
+                        Cliente: <code>cliente / cliente123</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

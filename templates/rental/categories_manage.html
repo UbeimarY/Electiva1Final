@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Categorías - RentCar{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 sidebar p-3">
+            <h5 class="mb-4">Panel Admin</h5>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'dashboard' %}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vehicles_manage' %}">
+                        <i class="bi bi-car-front"></i> Vehículos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'categories_manage' %}">
+                        <i class="bi bi-tags"></i> Categorías
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'rentals_manage' %}">
+                        <i class="bi bi-list-check"></i> Alquileres
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Gestión de Categorías</h2>
+                <a href="{% url 'category_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nueva Categoría
+                </a>
+            </div>
+
+            <!-- Categories Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for category in categories %}
+                                <tr>
+                                    <td><strong>{{ category.name }}</strong></td>
+                                    <td>{{ category.description|truncatewords:10 }}</td>
+                                    <td>{{ category.created_at|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'category_edit' category.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{% url 'category_delete' category.pk %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No hay categorías registradas.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

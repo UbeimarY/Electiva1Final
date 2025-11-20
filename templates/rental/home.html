@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="hero py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold">Sistema de Alquiler de Vehículos</h1>
+                <p class="lead">Encuentra el vehículo perfecto para tu próxima aventura</p>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'register' %}" class="btn btn-light btn-lg me-2">Comenzar</a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Iniciar Sesión</a>
+                {% else %}
+                    <a href="{% url 'vehicles_list' %}" class="btn btn-light btn-lg">Ver Vehículos</a>
+                {% endif %}
+            </div>
+            <div class="col-lg-6">
+                <img src="{% static 'img/vehicle_placeholder.svg' %}" alt="Vehicles" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Categorías Disponibles</h2>
+    <div class="row g-4">
+        {% for category in categories %}
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-car-front display-4 text-primary mb-3"></i>
+                        <h5 class="card-title">{{ category.name }}</h5>
+                        <p class="card-text">{{ category.description }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Vehículos Destacados</h2>
+    <div class="row g-4">
+        {% for vehicle in vehicles %}
+            <div class="col-md-4">
+                <div class="card h-100">
+                    {% if vehicle.image %}
+                        <img src="{{ vehicle.image.url }}" class="card-img-top" alt="{{ vehicle }}">
+                    {% else %}
+                        <img src="{% static 'img/vehicle_placeholder.svg' %}" class="card-img-top" alt="placeholder">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ vehicle.brand }} {{ vehicle.model }}</h5>
+                        <p class="card-text">
+                            <span class="badge bg-secondary">{{ vehicle.category }}</span>
+                            <span class="badge bg-info">{{ vehicle.get_transmission_display }}</span>
+                        </p>
+                        <p class="text-primary fw-bold">${{ vehicle.daily_rate }}/día</p>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'rental_create' vehicle.id %}" class="btn btn-primary w-100">Reservar</a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-primary w-100">Iniciar para Reservar</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

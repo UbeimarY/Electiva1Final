@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Reserva - RentCar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Crear Reserva</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Vehículo</label>
+                            <input type="text" class="form-control" value="{{ vehicle }}" readonly>
+                            <input type="hidden" name="vehicle" value="{{ vehicle.id }}">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha de Inicio</label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger">{{ form.start_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha de Devolución</label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <div class="text-danger">{{ form.end_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Notas (Opcional)</label>
+                            {{ form.notes }}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Confirmar Reserva</button>
+                            <a href="{% url 'vehicles_list' %}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Detalles del Vehículo</h5>
+                </div>
+                <div class="card-body">
+                    {% if vehicle.image %}
+                        <img src="{{ vehicle.image.url }}" class="img-fluid mb-3" alt="{{ vehicle }}">
+                    {% endif %}
+                    <h5>{{ vehicle.brand }} {{ vehicle.model }}</h5>
+                    <p class="mb-2"><strong>Categoría:</strong> {{ vehicle.category }}</p>
+                    <p class="mb-2"><strong>Transmisión:</strong> {{ vehicle.get_transmission_display }}</p>
+                    <p class="mb-2"><strong>Capacidad:</strong> {{ vehicle.capacity }} pasajeros</p>
+                    <p class="text-primary fw-bold fs-4">Tarifa: ${{ vehicle.daily_rate }}/día</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select { border: 1px solid #ced4da; padding: 0.5rem; }
+</style>
+{% endblock %}

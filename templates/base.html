@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Alquiler de Vehículos{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent: #0ea5e9;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+        }
+        /* Tarjetas con gradiente para métricas */
+        .stat-card {
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent));
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+        .stat-card.success { background: linear-gradient(135deg, var(--success), #34d399); }
+        .stat-card.warning { background: linear-gradient(135deg, var(--warning), #fbbf24); }
+        .stat-card.info { background: linear-gradient(135deg, var(--info), #22d3ee); }
+        .stat-card h6 { letter-spacing: .5px; opacity: .85; }
+        .stat-card h2 { font-weight: 800; }
+        .navbar-brand {
+            font-weight: bold;
+            color: var(--primary-color) !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .sidebar {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+        }
+        
+        .sidebar .nav-link {
+            color: #495057;
+            padding: 0.75rem 1rem;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: #e9ecef;
+            color: var(--primary-color);
+        }
+        /* Vehicle card styles */
+        .vehicle-card .card-img-top { height: 200px; object-fit: cover; }
+        .vehicle-card .badge { margin-right: .25rem; }
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent));
+            color: #fff;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="bi bi-car-front"></i> RentCar
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        {% if user.profile.role == 'admin' or user.profile.role == 'operador' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'dashboard' %}">
+                                    <i class="bi bi-speedometer2"></i> Dashboard
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'vehicles_list' %}">
+                                    <i class="bi bi-car-front"></i> Vehículos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'my_rentals' %}">
+                                    <i class="bi bi-list-check"></i> Mis Reservas
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> {{ user.get_full_name }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Content -->
+    {% block content %}{% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
