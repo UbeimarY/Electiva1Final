@@ -8,6 +8,8 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 import csv
 from django.template.loader import render_to_string
+from django.conf import settings
+import os
 from io import BytesIO
 from django.db.models.functions import TruncMonth
 
@@ -526,8 +528,21 @@ def rental_contract_pdf(request, pk):
         messages.error(request, 'La generación de PDF requiere instalar "xhtml2pdf".')
         return redirect('rentals_manage')
 
+    # Resolver rutas de STATIC/MEDIA a filesystem para que xhtml2pdf pueda leer imágenes
+    def link_callback(uri, rel):
+        # Mapear STATIC
+        if uri.startswith(settings.STATIC_URL):
+            path = os.path.join(settings.STATIC_ROOT, uri.replace(settings.STATIC_URL, ''))
+            return path if os.path.exists(path) else uri
+        # Mapear MEDIA
+        if uri.startswith(settings.MEDIA_URL):
+            path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ''))
+            return path if os.path.exists(path) else uri
+        # Devolver URI tal cual para URLs absolutas (http/https)
+        return uri
+
     html = render_to_string('rental/rental_contract.html', {'rental': rental})
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="contrato_{rental.id}.pdf"'
-    _pisa.CreatePDF(html, dest=response)
+    _pisa.CreatePDF(html, dest=response, link_callback=link_callback)
     return response
